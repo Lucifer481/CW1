@@ -81,4 +81,44 @@ class EncryptionTool:
         del cipher_object
         os.remove(self.user_file)
 
+    
+    def decrypt(self):
+        cipher_object = AES.new(
+            self.hashed_key_salt["key"],
+            AES.MODE_CFB,
+             self.hashed_key_salt["salt"]
+        )
+
+        self.abort()
+        input_file = open(self.user_file, "rb")
+        output_file = open(self.decrypt_output_file, "xb")
+        done_chunks = 0
+
+        for piece in self.read_in_chunks(input_file):
+            decrypted_content = cipher_object.decrypt(piece)
+            output_file.write(decrypted_content)
+            done_chunks += 1
+            yield (done_chunks / self.total_chunks) * 100
+
+        input_file.close()
+        output_file.close()
+        del cipher_object
+
+    def abort(self):
+        if os.path.isfile(self.encrypt_output_file):
+            os.remove(self.encrypt_output_file)
+        if os.path.isfile(self.decrypt_output_file):
+            os.remove(self.decrypt_output_file)
+
+    def hash_key_salt(self):
+        hasher = hashlib.new(self.hash_type)
+        hasher.update(self.user_key)
+        self.hashed_key_salt["key"] = bytes(hasher.hexdigest()[:32], "utf-8")
+        del hasher
+
+        hasher = hashlib.new(self.hash_type)
+        hasher.update(self.user_salt)
+        self.hashed_key_salt["salt"] = bytes(hasher.hexdigest()[:16], "utf-8")
+        del hasher
+
         
