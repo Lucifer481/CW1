@@ -60,10 +60,11 @@ class EncryptionTool:
     
     def encrypt(self):
         cipher_object = AES.new(
-            self.hashed_key_salt["key"]
+            self.hashed_key_salt["key"],
             AES.MODE_CFB,
             self.hashed_key_salt["salt"]
         )
+
 
         self.abort()
         input_file = open(self.user_file, "rb")

@@ -11,13 +11,12 @@ class TestEncryptionTool(unittest.TestCase):
             f.write(self.original_content)
 
         # Initialize the EncryptionTool
-        self.tool = EncryptionTool(self.test_file, 'dummy_key', 'dummy_salt')  # Adjust the parameters as needed
-
+        self.tool = EncryptionTool(self.test_file, 'dummy_key', 'dummy_salt')  
     def test_encryption(self):
         # Perform encryption
         self.tool.encrypt()
 
-        # Assuming the encrypted file has a different name or path, adjust as needed
+        # Assuming the encrypted file has a different name or path
         encrypted_file = "encrypted_" + self.test_file
         self.assertTrue(os.path.exists(encrypted_file))
 
