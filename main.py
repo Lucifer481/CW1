@@ -46,3 +46,39 @@ class EncryptionTool:
                                    + "__deseypted__." + self.decrypt_output_file[-1]
         self.hashed_key_salt = dict()
         self.hash_key_salt()
+
+
+# Read Memory Size
+    def read_in_chunks(self, file_object, chunk_size=1024):
+        while True:
+            data = file_object.read(chunk_size)
+            if not data:
+                break
+            yield data
+
+# Encrypted and decrypted key 
+    
+    def encrypt(self):
+        cipher_object = AES.new(
+            self.hashed_key_salt["key"]
+            AES.MODE_CFB,
+            self.hashed_key_salt["salt"]
+        )
+
+        self.abort()
+        input_file = open(self.user_file, "rb")
+        output_file = open(self.encrypt_output_file, "ab")
+        done_chunks = 0
+
+        for piece in self.read_in_chunks(input_file, self.chunk_size):
+            encrypted_content = cipher_object.encrypt(piece)
+            output_file.write(encrypted_content)
+            done_chunks += 1
+            yield (done_chunks / self.total_chunks) * 100
+
+        input_file.close()
+        output_file.close()
+        del cipher_object
+        os.remove(self.user_file)
+
+        
