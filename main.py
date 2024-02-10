@@ -185,6 +185,143 @@ class MainWindow:
             bg="#FAC9D0",
             anchor=tk.W
         )
+         self.file_entry_label.grid(
+            padx=12,
+            pady=(8, 0),
+            ipadx=0,
+            ipady=1,
+            row=0,
+            column=0,
+            columnspan=4,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        self.file_entry = tk.Entry(
+            root,
+            textvariable=self._file_url,
+            bg="#fff",
+            exportselection=0,
+            relief=tk.FLAT
+        )
+        self.file_entry.grid(
+            padx=15,
+            pady=6,
+            ipadx=8,
+            ipady=8,
+            row=1,
+            column=0,
+            columnspan=4,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        self.select_btn = tk.Button(
+            root,
+            text="SELECT FILE",
+            command=self.selectfile_callback,
+            width=42,
+            bg="#1089ff",
+            fg="#ffffff",
+            bd=2,
+            relief=tk.FLAT
+
+                    )
+        self.select_btn.grid(
+            padx=15,
+            pady=8,
+            ipadx=24,
+            ipady=6,
+            row=2,
+            column=0,
+            columnspan=4,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        self.encrypt_btn = tk.Button(
+            root,
+            text="ENCRYPT",
+            command=self.encrypt_callback,
+            bg="#ed3833",
+            fg="#ffffff",
+            bd=2,
+            relief=tk.FLAT
+        )
+        self.encrypt_btn.grid(
+            padx=(15, 6),
+            pady=8,
+            ipadx=24,
+            ipady=6,
+            row=7,
+            column=0,
+            columnspan=2,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        self.decrypt_btn = tk.Button(
+            root,
+            text="DECRYPT",
+            command=self.decrypt_callback,
+            bg="#00bd56",
+            fg="#ffffff",
+            bd=2,
+            relief=tk.FLAT
+        )
+        self.decrypt_btn.grid(
+            padx=(6, 15),
+            pady=8,
+            ipadx=24,
+            ipady=6,
+            row=7,
+            column=2,
+            columnspan=2,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        self.reset_btn = tk.Button(
+            root,
+            text="RESET",
+            command=self.reset_callback,
+            bg="#aaaaaa",
+            fg="#ffffff",
+            bd=2,
+            relief=tk.FLAT
+        )
+        self.reset_btn.grid(
+            padx=15,
+            pady=(4, 12),
+            ipadx=24,
+            ipady=6,
+            row=8,
+            column=0,
+            columnspan=4,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        self.status_label = tk.Label(
+            root,
+            textvariable=self._status,
+            bg="#eeeeee",
+            anchor=tk.W,
+            justify=tk.LEFT,
+            relief=tk.FLAT,
+            wraplength=350
+        )
+        self.status_label.grid(
+            padx=12,
+            pady=(0, 12),
+            ipadx=0,
+            ipady=1,
+            row=9,
+            column=0,
+            columnspan=4,
+            sticky=tk.W + tk.E + tk.N + tk.S
+        )
+
+        tk.Grid.columnconfigure(root, 0, weight=1)
+        tk.Grid.columnconfigure(root, 1, weight=1)
+        tk.Grid.columnconfigure(root, 2, weight=1)
+        tk.Grid.columnconfigure(root, 3, weight=1)
+
+    
 
 
 
