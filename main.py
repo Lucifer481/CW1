@@ -145,4 +145,45 @@ class MainWindow:
         root.title("Saikey - Encryption/Decryption Tool")
         root.configure(bg="#E8F4FF")
 
+        try:
+            icon_img = tk.Image(
+                "photo",
+                file=self.THIS_FOLDER_G + "/logo/icon.png"
+            )
+            root.call(
+                "wm",
+                "iconphoto",
+                root._w,
+                icon_img
+            )
+        except Exception:
+            pass
+
+        self.menu_bar = tk.Menu(root, bg="#eeeeee", relief=tk.FLAT)
+
+        file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        file_menu.add_command(label="Open", command=self.selectfile_callback)
+        file_menu.add_separator()
+        file_menu.add_command(label="Save Encrypted Key", command=self.save_encrypted_key_callback)
+        file_menu.add_separator()
+        file_menu.add_command(label="Quit", command=root.quit)
+        self.menu_bar.add_cascade(label="File", menu=file_menu)
+
+        help_menu = tk.Menu(self.menu_bar, tearoff=0)
+        help_menu.add_command(label="About", command=self.show_about_dialog)
+        self.menu_bar.add_cascade(label="Help", menu=help_menu)
+
+        version_menu = tk.Menu(self.menu_bar, tearoff=0)
+        version_menu.add_command(label="About", command=self.show_about_dialog)
+        self.menu_bar.add_cascade(label="Version", menu=version_menu)
+
+        root.configure(menu=self.menu_bar)
+
+        self.file_entry_label = tk.Label(
+            root,
+            text="Enter File Path Or Click SELECT FILE Button",
+            bg="#FAC9D0",
+            anchor=tk.W
+        )
+
         
