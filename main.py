@@ -321,6 +321,18 @@ class MainWindow:
         tk.Grid.columnconfigure(root, 2, weight=1)
         tk.Grid.columnconfigure(root, 3, weight=1)
 
+# Encrypted key saved
+    def save_encrypted_key_callback(self):
+        try:
+            if self._cipher:
+                file_name = os.path.splitext(os.path.basename(self._file_url.get()))[0]
+                key_path = self._cipher.save_encrypted_key(file_name)
+                self._status.set(f"Encrypted Key Saved Successfully at: {key_path}")
+            else:
+                self._status.set("No encryption in progress. Cannot save key.")
+        except Exception as e:
+            self._status.set(e)
+
     
 
 
