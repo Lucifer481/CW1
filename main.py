@@ -123,6 +123,26 @@ class EncryptionTool:
         del hasher
 
 
+# GUI MENU 
+        
+class MainWindow:
+    THIS_FOLDER_G = ""
+    if getattr(sys, "frozen", False):
+        THIS_FOLDER_G = os.path.dirname(sys.executable)
+    else:
+        THIS_FOLDER_G = os.path.dirname(os.path.realpath(__file__))
+       
+    def __init__(self, root):
+        self.root = root
+        self._cipher = None
+        self._file_url = tk.StringVar()
+        self._secret_key = tk.StringVar()
+        self._salt = tk.StringVar()
+        self._status = tk.StringVar()
+        self._status.set("---")
+        self.should_cancel = False
 
+        root.title("Saikey - Encryption/Decryption Tool")
+        root.configure(bg="#E8F4FF")
 
         
