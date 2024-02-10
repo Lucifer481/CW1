@@ -186,4 +186,24 @@ class MainWindow:
             anchor=tk.W
         )
 
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    ROOT = tk.Tk()
+    MAIN_WINDOW = MainWindow(ROOT)
+    ROOT.mainloop()
