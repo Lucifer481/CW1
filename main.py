@@ -122,4 +122,7 @@ class EncryptionTool:
         self.hashed_key_salt["salt"] = bytes(hasher.hexdigest()[:16], "utf-8")
         del hasher
 
+
+
+
         
