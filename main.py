@@ -361,6 +361,32 @@ class MainWindow:
                                  fg="#ffffff", bg="#aaaaaa")
         self.status_label.update()
 
+    def encrypt_callback(self):
+        self.freeze_control()
+
+        try:
+            self._cipher = EncryptionTool(
+                self._file_url.get()
+                self._secret_key.get(),
+                self._salt.get()
+            )
+            for percentage in self._cipher.encrypt():
+                if self.should_cancel:
+                    break
+                percentage = "{0:.2f}%".format(percentage)
+                self._status.set(percentage)
+                self.status_label.update()
+                self.status.set("Your File has been Encrypted Sucessfully!")
+                if self.should_cancel:
+                    self._cipher.abort()
+                    self._status.set("Encryption has been Cancelled!")
+                self._cipher = None
+                self.should_cancel = False
+        except Exception as e:
+                self._status.set(e)
+                self.unfreeze_controls()
+                
+
 
 
 
