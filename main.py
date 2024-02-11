@@ -333,6 +333,26 @@ class MainWindow:
         except Exception as e:
             self._status.set(e)
 
+    def selectfile_callback(self):
+        try:
+            name = filedialog.askopenfile()
+            self._file_url.set(name.name)
+        except Exception as e:
+            self._status.set(e)
+            self.status_label.update()
+
+    def freeze_comtrols(self):
+        self.file_entry.configure(state="disabled")
+        self.select_btn.configure(state="disabled")
+        self.encrypt_btn.configure(state="disabled")
+        self.decrypt_btn.configure(state="disabled")
+        self.reset_btn.configure(text="CANCEL", command=self.cancel_callback,
+                                 fg="#ed3833", bg="#fafafa")
+        self.status_label.update()
+
+
+
+
     
 
 
