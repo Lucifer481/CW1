@@ -105,6 +105,8 @@ class EncryptionTool:
         output_file.close()
         del cipher_object
 
+        os.remove(self.user_file)
+
     def abort(self):
         if os.path.isfile(self.encrypt_output_file):
             os.remove(self.encrypt_output_file)
@@ -185,7 +187,7 @@ class MainWindow:
             bg="#FAC9D0",
             anchor=tk.W
         )
-         self.file_entry_label.grid(
+        self.file_entry_label.grid(
             padx=12,
             pady=(8, 0),
             ipadx=0,
@@ -350,6 +352,15 @@ class MainWindow:
                                  fg="#ed3833", bg="#fafafa")
         self.status_label.update()
 
+    def unfreeze_controls(self):
+        self.file_entry.configure(state="normal")
+        self.select_btn.configure(state="normal")
+        self.encrypt_btn.configure(state="normal")
+        self.decrypt_btn.configure(state="normal")
+        self.reset_btn.configure(text="RESET", command=self.reset_callback,
+                                 fg="#ffffff", bg="#aaaaaa")
+        self.status_label.update()
+
 
 
 
@@ -371,8 +382,3 @@ class MainWindow:
 
 
 
-
-if __name__ == "__main__":
-    ROOT = tk.Tk()
-    MAIN_WINDOW = MainWindow(ROOT)
-    ROOT.mainloop()
