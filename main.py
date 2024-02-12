@@ -410,6 +410,47 @@ class MainWindow:
         except Exception as e:
             print(f"Error checking key validity: {e}")
             return False
+        
+# Decrypt call
+    def decrypt_callback(self):
+        self.freeze_controls()
+
+        key_input = self.prompt_for_key("Enter Encryption Key for Decryption")
+        if key_input is None:
+            self.unfreeze_controls()
+            return
+
+        try:
+            self._cipher = EncryptionTool(
+                self._file_url.get(),
+                key_input,
+                self._salt.get()
+            )
+            is_valid_key = self.check_key_validity(key_input)
+            if not is_valid_key:
+                self._status.set("Invalid Key! Decryption aborted.")
+                self.unfreeze_controls()
+                return
+
+            for percentage in self._cipher.decrypt():
+                if self.should_cancel:
+                    break
+                percentage = "{0:.2f}%".format(percentage)
+                self._status.set(percentage)
+                self.status_label.update()
+            self._status.set("File Decrypted!")
+
+            os.remove(self._file_url.get())
+
+            if self.should_cancel:
+                self._cipher.abort()
+                self._status.set("Cancelled!")
+            self._cipher = None
+            self.should_cancel = False
+        except Exception as e:
+            self._status.set(e)
+
+        self.unfreeze_controls()
 
 
 
