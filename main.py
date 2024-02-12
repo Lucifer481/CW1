@@ -385,7 +385,31 @@ class MainWindow:
         except Exception as e:
                 self._status.set(e)
                 self.unfreeze_controls()
-                
+
+# Check Key 
+    def prompt_for_key(self, prompt_text):
+        return tkinter.simpledialog.askstring("Key Prompt", prompt_text, show='*')
+    
+    def check_key_validity(self, entered_key):
+        key_file_path = "filekey.key"
+
+        if not os.path.exists(key_file_path):
+            return False
+
+        try:
+            with open(key_file_path, "rb") as key_file:
+                saved_key = key_file.read()
+
+                cipher_suite = Fernet(saved_key)
+                # Attempt to decrypt a piece of ciphertext to check if the key is valid
+                cipher_suite.decrypt(cipher_suite.encrypt(b"test"))
+
+                return True
+        except InvalidToken:
+            return False
+        except Exception as e:
+            print(f"Error checking key validity: {e}")
+            return False
 
 
 
