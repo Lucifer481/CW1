@@ -462,6 +462,12 @@ class MainWindow:
     def cancel_callback(self):
         self.should_cancel = True
 
+    def show_about_dialog(self):
+        messagebox.showinfo(
+            "About",
+            "Saikey\nVersion 1.0 \n\nA simple file encryption/decryption tool."
+        )
+
 
 
 

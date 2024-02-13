@@ -5,8 +5,8 @@ from main import EncryptionTool
 class TestEncryptionTool(unittest.TestCase):
     def setUp(self):
         # Setup a temporary file for testing
-        self.test_file = "temp_test_file.txt"
-        self.original_content = b"Hello, this is a test."
+        self.test_file = "test_file.txt"
+        self.original_content = b"Hello, this is a testing."
         with open(self.test_file, 'wb') as f:
             f.write(self.original_content)
 
