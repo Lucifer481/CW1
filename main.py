@@ -452,6 +452,16 @@ class MainWindow:
 
         self.unfreeze_controls()
 
+    def reset_callback(self):
+        self._cipher = None
+        self._file_url.set("")
+        self._secret_key.set("")
+        self._salt.set("")
+        self._status.set("---")
+
+    def cancel_callback(self):
+        self.should_cancel = True
+
 
 
 
