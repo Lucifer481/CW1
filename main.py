@@ -366,7 +366,7 @@ class MainWindow:
 
         try:
             self._cipher = EncryptionTool(
-                self._file_url.get()
+           self._file_url.get(),
                 self._secret_key.get(),
                 self._salt.get()
             )
@@ -467,6 +467,23 @@ class MainWindow:
             "About",
             "Saikey\nVersion 1.0 \n\nA simple file encryption/decryption tool."
         )
+
+    
+    def show_help_callback(self):
+        messagebox.showinfo(
+            "How To",
+            """1. Open the App and Click SELECT FILE Button and select your files.
+2. Enter your Secret Key (This can be any alphanumeric letters). Remember this so you can Decrypt the file later.
+3. Click ENCRYPT Button to encrypt. A new encrypted file with ".seyp" extension e.g. "abc.jpg.seyp" will be created in the same directory where the "abc.jpg" is.
+4. When you want to Decrypt a file you, will select the file with the ".seyp" extension and Enter your Secret Key which you chose at the time of Encryption. Click DECRYPT Button to decrypt. The decrypted file will be of the same name as before with the suffix "__deseypted__" e.g. "abc__deseypted__.jpg".
+5. Click RESET Button to reset the input fields and status bar.
+6. You can also Click CANCEL Button during Encryption/Decryption to stop the process."""
+        )
+
+if __name__ == "__main__":
+    ROOT = tk.Tk()
+    MAIN_WINDOW = MainWindow(ROOT)
+    ROOT.mainloop()
 
 
 
