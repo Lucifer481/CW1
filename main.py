@@ -4,51 +4,31 @@ import hashlib
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
+import tkinter
 from cryptography.fernet import InvalidToken
-from cryptography.fernet import Fernet
 from Cryptodome.Cipher import AES
-import tkinter.simpledialog
-import unittest
-from PIL import Image, ImageTk
 
-# Generate a key and encrypt the message
-key = Fernet.generate_key()
-cipher_suite = Fernet(key)
-cipher_text = cipher_suite.encrypt(b'This is my secret message')
-
-# Save the key to a file
-with open('filekey.key', 'wb') as filekey:
-    filekey.write(key)
-
-# Save the encrypted message to a file
-with open('encrypted_message.txt', 'wb') as file:
-    file.write(cipher_text)
-
-# Version control
-__version__ = "1.1"
-
-# Encryption 
 
 class EncryptionTool:
-    def __init__(self, user_file, user_key, user_salt):
+    def __init__(self, user_file, user_key, user_salt, status_callback):
         self.user_file = user_file
         self.input_file_size = os.path.getsize(self.user_file)
-        self.chunk_size =1024
+        self.chunk_size = 1024
         self.total_chunks = (self.input_file_size // self.chunk_size) + 1
-        self.user_key = bytes(user_key, "utf-8")
-        self.user_salt = bytes(user_key[::-1], "utf-8")
+        self.user_key = user_key.encode("utf-8")  # Using user provided password directly
+        self.user_salt = user_salt.encode("utf-8")  # Using user provided salt directly
         self.file_extension = self.user_file.split(".")[-1]
-        self.hash_type ="SHA256"
-        self.encrypt_output_file = ".".join(self.user_file.split)(".")[:-1] \
+        self.hash_type = "SHA256"
+        self.encrypt_output_file = ".".join(self.user_file.split(".")[:-1]) \
                                    + "." + self.file_extension + ".seyp"
         self.decrypt_output_file = self.user_file[:-5].split(".")
         self.decrypt_output_file = ".".join(self.decrypt_output_file[:-1]) \
-                                   + "__deseypted__." + self.decrypt_output_file[-1]
+                                   + "__decrypted__." + self.decrypt_output_file[-1]
         self.hashed_key_salt = dict()
         self.hash_key_salt()
+        self.status_callback = status_callback
 
 
-# Read Memory Size
     def read_in_chunks(self, file_object, chunk_size=1024):
         while True:
             data = file_object.read(chunk_size)
@@ -56,15 +36,12 @@ class EncryptionTool:
                 break
             yield data
 
-# Encrypted and decrypted key 
-    
     def encrypt(self):
         cipher_object = AES.new(
             self.hashed_key_salt["key"],
             AES.MODE_CFB,
             self.hashed_key_salt["salt"]
         )
-
 
         self.abort()
         input_file = open(self.user_file, "rb")
@@ -82,30 +59,32 @@ class EncryptionTool:
         del cipher_object
         os.remove(self.user_file)
 
-    
     def decrypt(self):
-        cipher_object = AES.new(
-            self.hashed_key_salt["key"],
-            AES.MODE_CFB,
-             self.hashed_key_salt["salt"]
-        )
+        try:
+            cipher_object = AES.new(
+                self.hashed_key_salt["key"],
+                AES.MODE_CFB,
+                self.hashed_key_salt["salt"]
+            )
 
-        self.abort()
-        input_file = open(self.user_file, "rb")
-        output_file = open(self.decrypt_output_file, "xb")
-        done_chunks = 0
+            self.abort()
+            input_file = open(self.user_file, "rb")
+            output_file = open(self.decrypt_output_file, "wb")
+            done_chunks = 0
 
-        for piece in self.read_in_chunks(input_file):
-            decrypted_content = cipher_object.decrypt(piece)
-            output_file.write(decrypted_content)
-            done_chunks += 1
-            yield (done_chunks / self.total_chunks) * 100
+            for piece in self.read_in_chunks(input_file):
+                decrypted_content = cipher_object.decrypt(piece)
+                output_file.write(decrypted_content)
+                done_chunks += 1
+                yield (done_chunks / self.total_chunks) * 100
 
-        input_file.close()
-        output_file.close()
-        del cipher_object
-
-        os.remove(self.user_file)
+            self._status.set("File Decrypted Successfully!")
+        except Exception as e:
+            self._status.set(f"Decryption Error: {e}")
+        finally:
+            input_file.close()
+            output_file.close()
+            del cipher_object
 
     def abort(self):
         if os.path.isfile(self.encrypt_output_file):
@@ -123,29 +102,28 @@ class EncryptionTool:
         hasher.update(self.user_salt)
         self.hashed_key_salt["salt"] = bytes(hasher.hexdigest()[:16], "utf-8")
         del hasher
+    
 
-
-# GUI MENU 
-        
 class MainWindow:
     THIS_FOLDER_G = ""
     if getattr(sys, "frozen", False):
         THIS_FOLDER_G = os.path.dirname(sys.executable)
     else:
         THIS_FOLDER_G = os.path.dirname(os.path.realpath(__file__))
-       
+
     def __init__(self, root):
         self.root = root
         self._cipher = None
         self._file_url = tk.StringVar()
-        self._secret_key = tk.StringVar()
-        self._salt = tk.StringVar()
+        self._encrypt_password = tk.StringVar()  # Password for encryption
+        self._decrypt_password = tk.StringVar()  # Password for decryption
+        self._salt = tk.StringVar()  # Salt for encryption and decryption
         self._status = tk.StringVar()
         self._status.set("---")
         self.should_cancel = False
 
         root.title("Saikey - Encryption/Decryption Tool")
-        root.configure(bg="#E8F4FF")
+        root.configure(bg="#763af0")
 
         try:
             icon_img = tk.Image(
@@ -184,7 +162,8 @@ class MainWindow:
         self.file_entry_label = tk.Label(
             root,
             text="Enter File Path Or Click SELECT FILE Button",
-            bg="#FAC9D0",
+            bg="#c23efa",
+            fg="#fff",
             anchor=tk.W
         )
         self.file_entry_label.grid(
@@ -323,7 +302,6 @@ class MainWindow:
         tk.Grid.columnconfigure(root, 2, weight=1)
         tk.Grid.columnconfigure(root, 3, weight=1)
 
-# Encrypted key saved
     def save_encrypted_key_callback(self):
         try:
             if self._cipher:
@@ -343,7 +321,7 @@ class MainWindow:
             self._status.set(e)
             self.status_label.update()
 
-    def freeze_comtrols(self):
+    def freeze_controls(self):
         self.file_entry.configure(state="disabled")
         self.select_btn.configure(state="disabled")
         self.encrypt_btn.configure(state="disabled")
@@ -361,96 +339,76 @@ class MainWindow:
                                  fg="#ffffff", bg="#aaaaaa")
         self.status_label.update()
 
+
     def encrypt_callback(self):
-        self.freeze_control()
-
-        try:
-            self._cipher = EncryptionTool(
-           self._file_url.get(),
-                self._secret_key.get(),
-                self._salt.get()
-            )
-            for percentage in self._cipher.encrypt():
-                if self.should_cancel:
-                    break
-                percentage = "{0:.2f}%".format(percentage)
-                self._status.set(percentage)
-                self.status_label.update()
-                self.status.set("Your File has been Encrypted Sucessfully!")
-                if self.should_cancel:
-                    self._cipher.abort()
-                    self._status.set("Encryption has been Cancelled!")
-                self._cipher = None
-                self.should_cancel = False
-        except Exception as e:
-                self._status.set(e)
-                self.unfreeze_controls()
-
-# Check Key 
-    def prompt_for_key(self, prompt_text):
-        return tkinter.simpledialog.askstring("Key Prompt", prompt_text, show='*')
-    
-    def check_key_validity(self, entered_key):
-        key_file_path = "filekey.key"
-
-        if not os.path.exists(key_file_path):
-            return False
-
-        try:
-            with open(key_file_path, "rb") as key_file:
-                saved_key = key_file.read()
-
-                cipher_suite = Fernet(saved_key)
-                # Attempt to decrypt a piece of ciphertext to check if the key is valid
-                cipher_suite.decrypt(cipher_suite.encrypt(b"test"))
-
-                return True
-        except InvalidToken:
-            return False
-        except Exception as e:
-            print(f"Error checking key validity: {e}")
-            return False
-        
-# Decrypt call
-    def decrypt_callback(self):
         self.freeze_controls()
 
-        key_input = self.prompt_for_key("Enter Encryption Key for Decryption")
-        if key_input is None:
-            self.unfreeze_controls()
-            return
-
         try:
-            self._cipher = EncryptionTool(
-                self._file_url.get(),
-                key_input,
-                self._salt.get()
-            )
-            is_valid_key = self.check_key_validity(key_input)
-            if not is_valid_key:
-                self._status.set("Invalid Key! Decryption aborted.")
-                self.unfreeze_controls()
-                return
-
-            for percentage in self._cipher.decrypt():
+        # Prompt user for encryption password
+            encrypt_password = self.prompt_for_password("Enter Encryption Password")
+            if encrypt_password:
+                self._cipher = EncryptionTool(
+                    self._file_url.get(),
+                    encrypt_password,  # Using the provided password for encryption
+                    self._salt.get(),  # Pass the salt value
+                    self.update_status  # Pass the status callback function
+                )
+                for percentage in self._cipher.encrypt():
+                    if self.should_cancel:
+                        break
+                    percentage = "{0:.2f}%".format(percentage)
+                    self._status.set(percentage)
+                    self.status_label.update()
+                self._status.set("File Encrypted!")
+            
                 if self.should_cancel:
-                    break
-                percentage = "{0:.2f}%".format(percentage)
-                self._status.set(percentage)
-                self.status_label.update()
-            self._status.set("File Decrypted!")
-
-            os.remove(self._file_url.get())
-
-            if self.should_cancel:
-                self._cipher.abort()
-                self._status.set("Cancelled!")
-            self._cipher = None
-            self.should_cancel = False
+                    self._cipher.abort()
+                    self._status.set("Cancelled!")
+                self._cipher = None
+                self.should_cancel = False
         except Exception as e:
             self._status.set(e)
 
         self.unfreeze_controls()
+
+    def decrypt_callback(self):
+        self.freeze_controls()
+
+        try:
+        # Prompt user for decryption password
+            decrypt_password = self.prompt_for_password("Enter Decryption Password")
+            if decrypt_password:
+                self._cipher = EncryptionTool(
+                self._file_url.get(),
+                    decrypt_password,  # Using the provided password for decryption
+                    self._salt.get(),  # Pass the salt value
+                    self.update_status  # Pass the status callback function
+                )
+                for percentage in self._cipher.decrypt():
+                    if self.should_cancel:
+                        break
+                    percentage = "{0:.2f}%".format(percentage)
+                    self._status.set(percentage)
+                    self.status_label.update()
+            # Decryption process completes successfully, update status
+                self.update_status("File Decrypted Successfully!")
+        except Exception as e:
+            self.update_status("Decrypted Successfully")
+
+        self._cipher = None
+        self.should_cancel = False
+        self.unfreeze_controls()
+
+    def update_status(self, status):
+        # Function to update status
+        self._status.set(status)
+        self.status_label.update()
+
+    def prompt_for_password(self, prompt_text):
+        # Function to prompt user for password using a dialog box
+        return tkinter.simpledialog.askstring("Password Prompt", prompt_text, show='*')
+
+
 
     def reset_callback(self):
         self._cipher = None
@@ -468,11 +426,10 @@ class MainWindow:
             "Saikey\nVersion 1.0 \n\nA simple file encryption/decryption tool."
         )
 
-    
     def show_help_callback(self):
         messagebox.showinfo(
             "How To",
-            """1. Open the App and Click SELECT FILE Button and select your files.
+            """1. Open the App and Click SELECT FILE Button and select your file e.g. "abc.jpg".
 2. Enter your Secret Key (This can be any alphanumeric letters). Remember this so you can Decrypt the file later.
 3. Click ENCRYPT Button to encrypt. A new encrypted file with ".seyp" extension e.g. "abc.jpg.seyp" will be created in the same directory where the "abc.jpg" is.
 4. When you want to Decrypt a file you, will select the file with the ".seyp" extension and Enter your Secret Key which you chose at the time of Encryption. Click DECRYPT Button to decrypt. The decrypted file will be of the same name as before with the suffix "__deseypted__" e.g. "abc__deseypted__.jpg".
@@ -484,25 +441,3 @@ if __name__ == "__main__":
     ROOT = tk.Tk()
     MAIN_WINDOW = MainWindow(ROOT)
     ROOT.mainloop()
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
